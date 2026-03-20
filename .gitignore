@@ -6,3 +6,8 @@ firmware
 zephyr
 zmk
 draw/base.yaml
+draw/base.svg
+draw/overview.yaml
+draw/overview.svg
+draw/*.png
+draw/corne.svg

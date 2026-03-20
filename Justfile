@@ -53,13 +53,29 @@ clean-all: clean
 clean-nix:
     nix-collect-garbage --delete-old
 
-# parse & plot keymap
+# parse & plot keymap (per-layer breakdown)
 draw:
     #!/usr/bin/env bash
     set -euo pipefail
     keymap -c "{{ draw }}/config.yaml" parse -z "{{ config }}/base.keymap" --virtual-layers Combos >"{{ draw }}/base.yaml"
-    yq -Yi '.combos.[].l = ["Combos"]' "{{ draw }}/base.yaml"
+    yq '(.combos.[].l) = ["Combos"]' -i "{{ draw }}/base.yaml"
     keymap -c "{{ draw }}/config.yaml" draw "{{ draw }}/base.yaml" -k "ferris/sweep" >"{{ draw }}/base.svg"
+
+# parse & plot overview keymap (all layers on one keyboard + combo diagram)
+draw-overview:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    keymap -c "{{ draw }}/config.yaml" parse -z "{{ config }}/base.keymap" --virtual-layers Combos >"{{ draw }}/base.yaml"
+    yq '(.combos.[].l) = ["Combos"]' -i "{{ draw }}/base.yaml"
+    # Reuse the Python from keymap-drawer's venv (has PyYAML)
+    kmpy=$(head -1 "$(command -v keymap)" | sed 's/^#!//')
+    "$kmpy" "{{ draw }}/merge_layers.py" "{{ draw }}/base.yaml" "{{ draw }}/overview.yaml"
+    keymap draw "{{ draw }}/overview.yaml" >"{{ draw }}/overview.svg"
+    rsvg-convert -f png -w 3000 "{{ draw }}/overview.svg" >"{{ draw }}/overview.png"
+    echo "Generated {{ draw }}/overview.{svg,png}"
+
+# parse & plot all keymap images
+draw-all: draw draw-overview
 
 # initialize west
 init:
