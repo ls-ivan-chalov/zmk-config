@@ -1,0 +1,14 @@
+#define CONFIG_WIRELESS
+#define ZMK_BASE_LAYER(name, LT, RT, LM, RM, LB, RB, LH, RH)                 \
+    ZMK_LAYER(                                                               \
+        name,                                                                \
+                 LT &none &none RT                                           \
+                 LM &none &none RM                                           \
+                 LB RB                                                       \
+        &kp LGUI LH RH &smart_mouse                                         \
+    )
+
+#include "corne_choc_pro_key_labels.h"
+#include "base.keymap"
+
+/ { chosen { zmk,physical-layout = &five_col_layout; }; };
