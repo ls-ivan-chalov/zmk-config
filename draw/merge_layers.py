@@ -15,6 +15,7 @@ Colors are applied via CSS classes on legend positions in svg_extra_style.
 Combos are drawn as separate mini-diagrams below the main keyboard.
 """
 
+import re
 import sys
 import yaml
 
@@ -84,6 +85,7 @@ def shorten_legend(text):
         "Ctl+Del": "C+Del",
         "Sentence": "Sent.",
         "Numword": "Numwd",
+        "Sticky Num": "S.Num",
     }
     return short.get(text, text)
 
@@ -101,6 +103,19 @@ def merge_layers(input_path, output_path):
     num_keys = layers.get("Num", [])
 
     num_keys_count = len(base_keys)
+
+    # Leader key sequence legends (position index -> character).
+    # German umlauts via Leader + key (macOS dead-key compose).
+    # 34-key Colemak-DH positions:
+    #   0:Q  1:W  2:F  3:P  4:B    5:J  6:L  7:U  8:Y  9:'
+    #  10:A 11:R 12:S 13:T 14:G   15:M 16:N 17:E 18:I 19:O
+    #  20:Z 21:X 22:C 23:D 24:V   25:K 26:H 27:, 28:. 29:?
+    leader_legends = {
+        10: "ä",  # Leader + A
+        19: "ö",  # Leader + O
+         7: "ü",  # Leader + U
+        12: "ß",  # Leader + S
+    }
     merged = []
 
     for i in range(num_keys_count):
@@ -126,22 +141,40 @@ def merge_layers(input_path, output_path):
         if shifted:
             out["s"] = shorten_legend(shifted)
 
-        # Top-right: Nav layer (skip trans/held)
-        nav_tap = get_tap(nav_keys[i]) if i < len(nav_keys) else ""
-        nav_hold = get_hold(nav_keys[i]) if i < len(nav_keys) else ""
-        # For nav, show the tap action. If it's a sticky mod, show that.
-        if nav_tap and not is_trans(nav_keys[i]) and not is_held(nav_keys[i]):
-            out["tr"] = shorten_legend(nav_tap)
+        # Thumb keys are smaller and rotated — limit overlay legends to avoid
+        # clutter. Match Urob's overview style:
+        #   Spc/Nav, Enter/Fn: tap + hold only (held on Nav/Fn, skip overlays)
+        #   Numword/Num: tap + hold + Fn/Nav overlays (mute icon + Cancel)
+        #   Magic/Shift: tap + hold only (skip overlays — too cramped)
+        # For thumbs, skip shifted (s) and Num overlay — too cramped.
+        is_thumb = i >= num_keys_count - 4
+        is_outer_thumb = (i == num_keys_count - 1) or (i == num_keys_count - 4)
 
-        # Top-left: Fn layer (skip trans/held)
+        if is_thumb:
+            # Drop shifted legend on thumbs — too cramped
+            out.pop("s", None)
+
+        # Nav layer (skip trans/held)
+        nav_tap = get_tap(nav_keys[i]) if i < len(nav_keys) else ""
+        if nav_tap and not is_trans(nav_keys[i]) and not is_held(nav_keys[i]):
+            if not is_outer_thumb:
+                out["tr"] = shorten_legend(nav_tap)
+
+        # Fn layer (skip trans/held)
         fn_tap = get_tap(fn_keys[i]) if i < len(fn_keys) else ""
         if fn_tap and not is_trans(fn_keys[i]) and not is_held(fn_keys[i]):
-            out["tl"] = shorten_legend(fn_tap)
+            if not is_outer_thumb:
+                out["tl"] = shorten_legend(fn_tap)
 
-        # Bottom-left: Num layer (skip trans/held)
+        # Num layer (skip trans/held; skip on thumbs — too cramped)
         num_tap = get_tap(num_keys[i]) if i < len(num_keys) else ""
         if num_tap and not is_trans(num_keys[i]) and not is_held(num_keys[i]):
-            out["bl"] = shorten_legend(num_tap)
+            if not is_thumb:
+                out["bl"] = shorten_legend(num_tap)
+
+        # Leader sequence legends (bottom-right)
+        if i in leader_legends:
+            out["br"] = leader_legends[i]
 
         # If key is completely empty, just output empty string
         if not out:
@@ -185,7 +218,7 @@ def merge_layers(input_path, output_path):
             "n_columns": 1,
             "append_colon_to_layer_header": False,
             "dark_mode": "auto",
-            "footer_text": '<tspan style="fill: #24292e; font-weight: bold">Base</tspan>  <tspan style="fill: #e05050">Fn</tspan>  <tspan style="fill: #2979ff">Nav</tspan>  <tspan style="fill: #2e9e5e">Num</tspan>  <tspan style="fill: #9c5ec0">Shifted</tspan>  <tspan style="fill: #808890">Hold</tspan>',
+            "footer_text": '<tspan style="fill: #24292e; font-weight: bold">Base</tspan>  <tspan style="fill: #e05050">Fn</tspan>  <tspan style="fill: #2979ff">Nav</tspan>  <tspan style="fill: #2e9e5e">Num</tspan>  <tspan style="fill: #9c5ec0">Shifted</tspan>  <tspan style="fill: #808890">Hold</tspan>  <tspan style="fill: #e67e22">Leader</tspan>',
             "separate_combo_diagrams": False,
             "svg_extra_style": """
 /* Color-code legend positions by layer */
@@ -227,6 +260,12 @@ svg.keymap .hold {
     font-size: 12px;
 }
 
+/* Leader sequences: bottom-right corner - orange */
+svg.keymap .br {
+    fill: #e67e22;
+    font-size: 12px;
+}
+
 /* Ghost keys for combo diagram - very light */
 rect.ghost {
     fill: #eef0f3;
@@ -249,7 +288,96 @@ rect.combo {
     print(f"Merged {num_keys_count} keys into overview YAML: {output_path}")
 
 
+# Map CSS legend position classes to their fill colors (must match svg_extra_style above)
+_CLASS_COLORS = {
+    "tl": "#e05050",      # Fn layer - red
+    "tr": "#2979ff",      # Nav layer - blue
+    "bl": "#2e9e5e",      # Num layer - green
+    "br": "#e67e22",      # Leader sequences - orange
+    "shifted": "#9c5ec0", # Shifted - purple
+    "hold": "#808890",    # Hold - dark gray
+    "tap": "#24292e",     # Base tap - near-black (default)
+}
+
+
+def fix_glyph_fills(svg_path, output_path=None):
+    """Post-process SVG to fix glyph rendering in librsvg (rsvg-convert).
+
+    keymap-drawer wraps each fetched glyph SVG in an outer <svg id="name">
+    container, producing double-nested SVGs in <defs>:
+
+        <svg id="mdi:volume-high">          ← outer wrapper (referenced by <use>)
+          <svg viewBox="0 0 24 24">         ← inner (actual glyph with <path>)
+            <path d="..."/>
+          </svg>
+        </svg>
+
+    librsvg doesn't reliably render the inner <svg> through <use> shadow DOM,
+    and CSS fill inheritance doesn't reach the <path> elements.
+
+    Fix: flatten the double nesting by removing the outer wrapper, transferring
+    its id to the inner <svg>, and inlining fill colors on <path> elements
+    based on which CSS class the <use> elements have.
+    """
+    with open(svg_path) as f:
+        svg = f.read()
+
+    # Build a map of glyph_id -> color from <use> elements
+    glyph_colors = {}
+    for match in re.finditer(r'<use\b[^>]*\bglyph\b[^>]*/>', svg):
+        tag = match.group(0)
+        href_match = re.search(r'href="([^"]*)"', tag)
+        if not href_match:
+            continue
+        glyph_id = href_match.group(1).lstrip("#")
+        classes = re.findall(r'class="([^"]*)"', tag)
+        if not classes:
+            continue
+        class_list = classes[0].split()
+        color = "#24292e"
+        for cls in class_list:
+            if cls in _CLASS_COLORS:
+                color = _CLASS_COLORS[cls]
+                break
+        glyph_colors[glyph_id] = color
+
+    # Flatten double-nested <svg> wrappers and inline fill on <path> elements
+    for glyph_id, color in glyph_colors.items():
+        # Match: <svg id="mdi:..."><svg ...viewBox...>...<path .../></svg></svg>
+        pattern = re.compile(
+            r'<svg\s+id="' + re.escape(glyph_id) + r'"[^>]*>\s*'
+            r'<svg\b([^>]*)>(.*?)</svg>\s*'
+            r'</svg>',
+            re.DOTALL,
+        )
+        match = pattern.search(svg)
+        if not match:
+            continue
+        inner_attrs = match.group(1)
+        inner_content = match.group(2)
+        # Add fill to <path> elements that don't already have one
+        inner_content = re.sub(
+            r'<path\b(?![^>]*\bfill=)',
+            f'<path fill="{color}"',
+            inner_content,
+        )
+        # Remove any existing id from inner attrs, add our glyph id
+        inner_attrs = re.sub(r'\s*id="[^"]*"', '', inner_attrs)
+        replacement = f'<svg id="{glyph_id}"{inner_attrs}>{inner_content}</svg>'
+        svg = svg[:match.start()] + replacement + svg[match.end():]
+
+    out = output_path or svg_path
+    with open(out, "w") as f:
+        f.write(svg)
+    print(f"Fixed glyph fills in: {out}")
+
+
 if __name__ == "__main__":
-    input_path = sys.argv[1] if len(sys.argv) > 1 else "draw/base.yaml"
-    output_path = sys.argv[2] if len(sys.argv) > 2 else "draw/overview.yaml"
-    merge_layers(input_path, output_path)
+    if len(sys.argv) > 1 and sys.argv[1] == "--fix-svg":
+        svg_path = sys.argv[2] if len(sys.argv) > 2 else "draw/overview.svg"
+        output_path = sys.argv[3] if len(sys.argv) > 3 else None
+        fix_glyph_fills(svg_path, output_path)
+    else:
+        input_path = sys.argv[1] if len(sys.argv) > 1 else "draw/base.yaml"
+        output_path = sys.argv[2] if len(sys.argv) > 2 else "draw/overview.yaml"
+        merge_layers(input_path, output_path)

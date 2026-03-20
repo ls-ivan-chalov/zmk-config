@@ -14,11 +14,38 @@
         }; \
     };
 
-/* German umlauts */
-ZMK_LEADER_SEQUENCE(de_ae,      &uc UC_DE_AE,         A)  // ä
-ZMK_LEADER_SEQUENCE(de_oe,      &uc UC_DE_OE,         O)  // ö
-ZMK_LEADER_SEQUENCE(de_ue,      &uc UC_DE_UE,         U)  // ü
-ZMK_LEADER_SEQUENCE(de_eszett,  &uc UC_DE_SS,         S)  // ß
+/* German umlauts via macOS dead-key compose (Option+U then vowel).
+ * Works on the standard U.S. input source — no Unicode Hex Input needed.
+ * Shift-aware: mod-morph picks uppercase variant when Shift is held.
+ * Capital ẞ has no dead-key equivalent, so ß always outputs lowercase. */
+ZMK_MACRO(uc_de_ae_lo, wait-ms = <10>; tap-ms = <5>;
+          bindings = <&kp LA(U)>, <&kp A>;)           // ä
+ZMK_MACRO(uc_de_ae_up, wait-ms = <10>; tap-ms = <5>;
+          bindings = <&kp LA(U)>, <&kp LS(A)>;)       // Ä
+ZMK_MOD_MORPH(uc_de_ae, bindings = <&uc_de_ae_lo>, <&uc_de_ae_up>;
+              mods = <(MOD_LSFT|MOD_RSFT)>;)
+
+ZMK_MACRO(uc_de_oe_lo, wait-ms = <10>; tap-ms = <5>;
+          bindings = <&kp LA(U)>, <&kp O>;)           // ö
+ZMK_MACRO(uc_de_oe_up, wait-ms = <10>; tap-ms = <5>;
+          bindings = <&kp LA(U)>, <&kp LS(O)>;)       // Ö
+ZMK_MOD_MORPH(uc_de_oe, bindings = <&uc_de_oe_lo>, <&uc_de_oe_up>;
+              mods = <(MOD_LSFT|MOD_RSFT)>;)
+
+ZMK_MACRO(uc_de_ue_lo, wait-ms = <10>; tap-ms = <5>;
+          bindings = <&kp LA(U)>, <&kp U>;)           // ü
+ZMK_MACRO(uc_de_ue_up, wait-ms = <10>; tap-ms = <5>;
+          bindings = <&kp LA(U)>, <&kp LS(U)>;)       // Ü
+ZMK_MOD_MORPH(uc_de_ue, bindings = <&uc_de_ue_lo>, <&uc_de_ue_up>;
+              mods = <(MOD_LSFT|MOD_RSFT)>;)
+
+ZMK_MACRO(uc_de_ss, wait-ms = <10>; tap-ms = <5>;
+          bindings = <&kp LA(S)>;)                    // ß (no uppercase variant)
+
+ZMK_LEADER_SEQUENCE(de_ae,      &uc_de_ae,        A)  // ä/Ä
+ZMK_LEADER_SEQUENCE(de_oe,      &uc_de_oe,        O)  // ö/Ö
+ZMK_LEADER_SEQUENCE(de_ue,      &uc_de_ue,        U)  // ü/Ü
+ZMK_LEADER_SEQUENCE(de_eszett,  &uc_de_ss,        S)  // ß
 
 /* Greek letters */
 ZMK_LEADER_SEQUENCE(el_alpha,   &uc UC_EL_ALPHA,      E A)  // α

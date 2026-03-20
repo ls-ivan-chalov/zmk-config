@@ -71,6 +71,7 @@ draw-overview:
     kmpy=$(head -1 "$(command -v keymap)" | sed 's/^#!//')
     "$kmpy" "{{ draw }}/merge_layers.py" "{{ draw }}/base.yaml" "{{ draw }}/overview.yaml"
     keymap draw "{{ draw }}/overview.yaml" >"{{ draw }}/overview.svg"
+    "$kmpy" "{{ draw }}/merge_layers.py" --fix-svg "{{ draw }}/overview.svg"
     rsvg-convert -f png -w 3000 "{{ draw }}/overview.svg" >"{{ draw }}/overview.png"
     echo "Generated {{ draw }}/overview.{svg,png}"
 
