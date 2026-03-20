@@ -16,17 +16,17 @@ parse_config:
     "&bt BT_SEL 2": BT 3
     "&bt BT_SEL 3": BT 4
 
-    "&kp LC(INS)": Copy
-    "&kp LC(X)": Cut
-    "&kp LS(INS)": Paste
+    "&kp LG(C)": Copy
+    "&kp LG(X)": Cut
+    "&kp LG(V)": Paste
 
-    "&kp LG(LC(LEFT))": Prev Desk
-    "&kp LG(LC(RIGHT))": Next Desk
-    "&kp LG(LC(LS(A)))": Pin App
-    "&kp LG(LC(LS(Q)))": Pin Win
+    "&kp LC(ESC)": Prev Desk
+    "&kp LC(TAB)": Next Desk
+    "&kp LG(GRAVE)": Spotlight
+    "&kp LC(UP)": Mission Ctrl
 
-    "&swapper": Next Win
-    "&kp LS(TAB)": Prev Win
+    "&swapper": Next App
+    "&kp LS(TAB)": Prev App
     "&dot_spc": Sentence
     "&num_dance": { "t": "Numword", "s": "Sticky Num" }
     "&magic_shift": { "t": Magic, "h": "Shift" }

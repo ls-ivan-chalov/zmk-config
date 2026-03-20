@@ -64,14 +64,12 @@ def get_shifted(key):
 def shorten_legend(text):
     """Shorten long legends to fit corner positions."""
     short = {
-        "Prev Win": "PWin",
-        "Next Win": "NWin",
+        "Prev App": "PApp",
+        "Next App": "NApp",
         "Prev Desk": "PDsk",
         "Next Desk": "NDsk",
-        "Alt+F4": "AltF4",
-        "Pin App": "PnApp",
-        "Pin Win": "PnWin",
-        "Alt+`": "Alt`",
+        "Spotlight": "Sptlt",
+        "Mission Ctrl": "MCtrl",
         "Smart Mouse": "Mouse",
         "Shift+Leader": "S+Ldr",
         "Sticky Num": "S.Num",
@@ -85,7 +83,6 @@ def shorten_legend(text):
         "Ctl+Del": "C+Del",
         "Sentence": "Sent.",
         "Numword": "Numwd",
-        "Sticky Num": "S.Num",
     }
     return short.get(text, text)
 
