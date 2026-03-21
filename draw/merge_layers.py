@@ -69,7 +69,7 @@ def shorten_legend(text):
         "Prev Desk": "PDsk",
         "Next Desk": "NDsk",
         "Spotlight": "Sptlt",
-        "Mission Ctrl": "MCtrl",
+        "Mission Ctrl": "MC",
         "Smart Mouse": "Mouse",
         "Shift+Leader": "S+Ldr",
         "Sticky Num": "S.Num",
@@ -103,15 +103,15 @@ def merge_layers(input_path, output_path):
 
     # Leader key sequence legends (position index -> character).
     # German umlauts via Leader + key (macOS dead-key compose).
-    # 34-key Colemak-DH positions:
-    #   0:Q  1:W  2:F  3:P  4:B    5:J  6:L  7:U  8:Y  9:'
-    #  10:A 11:R 12:S 13:T 14:G   15:M 16:N 17:E 18:I 19:O
-    #  20:Z 21:X 22:C 23:D 24:V   25:K 26:H 27:, 28:. 29:?
+    # 40-key five_col_transform positions (display slots at 5,6,17,18):
+    #   0:Q  1:W  2:F  3:P  4:B  [5:d 6:d]  7:J  8:L  9:U 10:Y 11:'
+    #  12:A 13:R 14:S 15:T 16:G [17:d 18:d] 19:M 20:N 21:E 22:I 23:O
+    #  24:Z 25:X 26:C 27:D 28:V  29:K 30:H 31:,  32:. 33:?
     leader_legends = {
-        10: "ä",  # Leader + A
-        19: "ö",  # Leader + O
-         7: "ü",  # Leader + U
-        12: "ß",  # Leader + S
+        12: "ä",  # Leader + A
+        23: "ö",  # Leader + O
+         9: "ü",  # Leader + U
+        14: "ß",  # Leader + S
     }
     merged = []
 
