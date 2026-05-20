@@ -5,7 +5,7 @@
                  LT &none &none RT                                           \
                  LM &none &none RM                                           \
                  LB RB                                                       \
-        &kp LGUI LH RH &smart_mouse                                         \
+        &kp ESC LH RH &smart_mouse                                         \
     )
 
 #include "corne_choc_pro_key_labels.h"
