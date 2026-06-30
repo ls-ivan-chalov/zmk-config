@@ -1,11 +1,15 @@
 #define CONFIG_WIRELESS
 
+#include <dt-bindings/zmk/rgb.h>
+
 #define RH2_BIND_Base  &kp BSPC
 #define RH2_BIND_Nav   &kp LA(BSPC)
 #define RH2_BIND_Fn    &trans
 #define RH2_BIND_Num   &trans
 #define RH2_BIND_Sys   &trans
 #define RH2_BIND_Mouse &trans
+
+#define SYS_APOS_BIND &rgb_ug RGB_TOG
 
 #define RH2_BIND(name) RH2_BIND_##name
 
