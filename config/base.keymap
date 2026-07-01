@@ -58,7 +58,7 @@
 #define MAKE_HRM(NAME, HOLD, TAP, TRIGGER_POS)                                 \
   ZMK_HOLD_TAP(NAME, bindings = <HOLD>, <TAP>; flavor = "balanced";            \
                tapping-term-ms = <280>; quick-tap-ms = <QUICK_TAP_MS>;         \
-               require-prior-idle-ms = <350>; hold-trigger-on-release;         \
+               require-prior-idle-ms = <280>; hold-trigger-on-release;         \
                hold-trigger-key-positions = <TRIGGER_POS>;)
 
 MAKE_HRM(hml, &kp, &kp, KEYS_R THUMBS) // Left-hand HRMs.
@@ -89,10 +89,10 @@ MAKE_HRM(hmr, &kp, &kp, KEYS_L THUMBS) // Right-hand HRMs.
 ZMK_HOLD_TAP(mt_home, bindings = <&masked_home>, <&kp>; MT_CORE)
 ZMK_HOLD_TAP(mt_end, bindings = <&masked_end>, <&kp>; MT_CORE)
 
-#define NAV_LEFT  &mt_home 0   LEFT  // Tap: left  | Long-tap: start of line.
-#define NAV_RIGHT &mt_end 0    RIGHT // Tap: right | Long-tap: end   of line.
-#define NAV_UP    &mt LG(UP)   UP    // Tap: up    | Long-tap: start of doc.
-#define NAV_DOWN  &mt LG(DOWN) DOWN  // Tap: down  | Long-tap: end   of doc.
+#define NAV_LEFT  &kp LEFT
+#define NAV_RIGHT &kp RIGHT
+#define NAV_UP    &kp UP
+#define NAV_DOWN  &kp DOWN
 #define NAV_BSPC  &mt LA(BSPC) BSPC  // Tap: bspc  | Long-tap: delete word bwd.
 #define NAV_DEL   &mt LA(DEL)  DEL   // Tap: del   | Long-tap: delete word fwd.
 
@@ -213,11 +213,11 @@ ZMK_BASE_LAYER(Base,
 
 ZMK_BASE_LAYER(Nav,
 //╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮ ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮
-    ___           ___           &kp LS(TAB)   &swapper      ___         ,   &kp PG_UP     NAV_BSPC      NAV_UP        NAV_DEL       ___         ,
+    ___           ___           &kp LS(TAB)   &swapper      ___         ,   &kp PG_UP     NAV_BSPC      ___           NAV_DEL       ___         ,
 //├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤ ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤
-    &sk LCTRL     &sk LALT      &sk LGUI      &sk LSHFT     ___         ,   &kp PG_DN     NAV_LEFT      NAV_DOWN      NAV_RIGHT     &kp RET     ,
+    &sk LCTRL     &sk LALT      &sk LGUI      &sk LSHFT     ___         ,   NAV_LEFT      NAV_DOWN      NAV_UP        NAV_RIGHT     &kp RET     ,
 //├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤ ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤
-    SPOTLIGHT     ___           ___           ___           ___         ,   &kp INS       &kp TAB       ___           ___           ___         ,
+    SPOTLIGHT     ___           ___           ___           ___         ,   &kp PG_DN     &kp TAB       &kp INS       ___           ___         ,
 //╰─────────────┼─────────────┴─────────────┼─────────────┼─────────────┤ ├─────────────┼─────────────┼─────────────┴───────────────────────────╯
                                               ___           ___         ,   ___           CANCEL
 //                                          ╰─────────────┴─────────────╯ ╰─────────────┴─────────────╯
